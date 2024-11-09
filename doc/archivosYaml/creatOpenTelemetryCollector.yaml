@@ -1,0 +1,31 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: my-sidecar
+  namespace: <<Name space donde se realizará el monitoreo>>
+spec:
+  mode: sidecar
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          http:
+          grpc:
+    processors:
+      batch:
+    exporters:
+      logging:
+      otlp:
+        endpoint: http://<<dirección donde se encuentra SigNoz cliente>>:39007
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [logging, otlp]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [logging, otlp]
