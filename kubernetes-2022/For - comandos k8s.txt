@@ -1,0 +1,25 @@
+# Escalar de forma masiva
+for p in $(kubectl get deploy -n produccion | awk '{print $1}'); do kubectl scale deployment $p --replicas=0;done
+
+# Borrar pods de forma masica
+for p in $(kubectl get pods -n cali | awk '{print $1}'); do kubectl delete pod $p -n cali --force;done
+
+
+for p in $(kubectl get pods -n cali | grep /2 | awk '{print $1}'); do kubectl delete pod $p -n cali;done
+
+
+for p in $(kubectl get pods -n desa | grep Error | awk '{print $1}'); do kubectl delete pod $p -n desa;done
+
+for p in $(kubectl get pods -n desa | awk '{print $1}'); do kubectl delete pod $p -n desa;done
+
+
+##Cambio de horario
+for p in $(kubectl get pods -n cali | grep sov-ddjj-front | awk '{print $1}'); do kubectl exec $p -n cali -- sh ln -sf /usr/share/zoneinfo/America/La_Paz /etc/localtime;done
+for p in $(kubectl get pods -n produccion | grep Running | awk '{print $1}'); do kubectl exec $p -n produccion -- ln -sf /usr/share/zoneinfo/America/La_Paz /etc/localtime;done
+
+#Deploy
+for p in $(ll | grep sfe | grep v2 | grep soap | grep dep | awk '{print $9}'); do kubectl apply -f $p; sleep 1;done
+for p in $(ll | grep 2020 | awk '{print $9}'); do rm -f $p;done
+
+#Servicios
+for p in $(ll | grep svc | awk '{print $9}'); do kubectl apply -f $p;done

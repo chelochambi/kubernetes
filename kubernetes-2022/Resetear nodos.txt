@@ -1,0 +1,51 @@
+kubeadm reset -f
+rm -rf /etc/cni/net.d
+rm -rf /opt/bin
+rm -rf /opt/cni/bin
+rm -rf $HOME/.kube
+rm -rf /etc/kubernetes/manifests/
+systemctl daemon-reload
+systemctl restart kubelet
+docker stop $(docker ps -a -q)
+
+echo "y" | docker system  prune -a
+reboot
+
+
+
+ansible pruebas -m command -a "kubeadm reset -f" -u root
+ansible pruebas -m command -a "rm -rf /etc/cni/net.d" -u root
+ansible pruebas -m command -a "rm -rf /opt/bin" -u root
+ansible pruebas -m command -a "rm -rf /opt/cni/bin" -u root
+ansible pruebas -m command -a "rm -rf $HOME/.kube" -u root
+ansible pruebas -m command -a "rm -rf /etc/kubernetes/manifests/" -u root
+ansible pruebas -m command -a "systemctl daemon-reload" -u root
+ansible pruebas -m command -a "systemctl restart kubelet" -u root
+ansible pruebas -m command -a "echo "y" | docker system  prune -a" -u root
+ansible pruebas -m command -a "reboot" -u root
+
+
+ansible pruebas -m command -a "kubeadm join 172.19.15.24:6443 --token zcbhnn.ectd7uh6ncslr9m6 --discovery-token-ca-cert-hash sha256:82b7486bfdef85bcb6cb332762ae10852132b2b01ef401897efa512daf9b235d" -u root
+
+kubeadm join 172.19.15.24:6443 --token zcbhnn.ectd7uh6ncslr9m6 --discovery-token-ca-cert-hash sha256:82b7486bfdef85bcb6cb332762ae10852132b2b01ef401897efa512daf9b235d
+
+
+
+
+kubectl label node s-nal-dc-kw-13 node=service --overwrite
+kubectl label node s-nal-dc-kw-08 node=service --overwrite
+
+kubectl label node s-nal-dc-kw-01 node=front --overwrite
+
+kubectl label node s-nal-dc-kw-13 node-role.kubernetes.io/worker=worker
+kubectl label node s-nal-dc-kw-08 node-role.kubernetes.io/worker=worker
+
+
+
+----------------------
+mkdir -p /etc/kubernetes/pki/etcd
+
+scp -r root@172.19.9.137:/root/etcd.pem /etc/kubernetes/pki
+scp -r root@172.19.9.137:/root/etcd-key.pem /etc/kubernetes/pki
+scp -r root@172.19.9.137:/root/ca.pem /etc/kubernetes/pki/etcd
+---------------------
